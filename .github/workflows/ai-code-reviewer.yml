@@ -1,0 +1,45 @@
+name: 🤖 Agentic AI Code Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]  # Trigger on new PRs and updates
+    branches:
+      - main
+      - develop
+
+# Permissions the agent needs to read code and write comments
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  ai-code-review:
+    name: AI Agent Code Review
+    runs-on: ubuntu-latest
+
+    # Only run if the PR is not from a bot (avoid infinite loops)
+    if: github.actor != 'github-actions[bot]'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # Full history so agent has full context
+
+      - name: Set Up Python for Agent
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Agent Dependencies
+        run: pip install requests
+
+      - name: Run AI Code Review Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER:         ${{ github.event.pull_request.number }}
+          COMMIT_SHA:        ${{ github.event.pull_request.head.sha }}
+        run: python .github/scripts/ai_reviewer.py

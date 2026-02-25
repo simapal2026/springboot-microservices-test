@@ -1,0 +1,79 @@
+name: Agentic Code Quality & Test Auto-Remediation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  agentic-remediation:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build & run tests
+        run: mvn clean test || true
+
+      - name: Run static analysis (SpotBugs + PMD)
+        run: |
+          mvn spotbugs:spotbugs pmd:pmd || true
+
+      - name: Collect analysis results
+        run: |
+          mkdir agent-input
+          cp target/spotbugsXml.xml agent-input/spotbugs.xml || true
+          cp target/pmd.xml agent-input/pmd.xml || true
+
+      - name: Agent Diagnosis + Fix + Test Generation
+        uses: github/copilot-agent-action@v1
+        with:
+          model: gpt-4.1
+          prompt: |
+            You are a senior Java engineer.
+
+            Tasks:
+            1. Read SpotBugs and PMD reports from agent-input folder.
+            2. Fix code quality issues in source files.
+            3. Identify methods without unit tests.
+            4. Generate JUnit 5 tests using Mockito where needed.
+            5. Ensure tests pass.
+            6. Do not change business logic.
+            7. Commit changes.
+
+            Output rules:
+            - Modify only src/main/java and src/test/java
+            - Follow existing package structure
+            - Use AssertJ if already present
+            - Keep test names descriptive
+
+      - name: Run tests again
+        run: mvn test
+
+      - name: Create remediation PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: agentic-remediation-${{ github.run_id }}
+          title: "🤖 Auto-remediation: code quality + tests"
+          body: |
+            This PR was generated automatically by the Agentic Workflow.
+
+            Fixes:
+            - Static analysis violations
+            - Missing unit tests
+            - Improved test coverage
+
+            Please review changes.
+

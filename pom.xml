@@ -40,6 +40,8 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+	
 	</dependencies>
 
 	<build>
@@ -48,6 +50,20 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			
+            <plugin>
+  				<groupId>com.github.spotbugs</groupId>
+ 			    <artifactId>spotbugs-maven-plugin</artifactId>
+  				<version>4.8.3.0</version>
+			</plugin>
+
+			<plugin>
+  				<groupId>org.apache.maven.plugins</groupId>
+  				<artifactId>maven-pmd-plugin</artifactId>
+  				<version>3.21.0</version>
+			</plugin>
+
+
 		</plugins>
 	</build>
 
