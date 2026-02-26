@@ -35,14 +35,18 @@ jobs:
 
       - name: Run LLM agent to fix code and add tests
         env:
-          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          gh api /ai/models/gpt-4.1 \
-            -X POST \
-            -f messages='[
-              {"role":"system","content":"You are a senior Java engineer agent."},
-              {"role":"user","content":"Read SpotBugs and PMD reports in agent-input. Fix violations in src/main/java. Generate missing JUnit 5 tests in src/test/java. Do not change business logic. Ensure mvn test passes."}
-            ]' > agent-output.json
+          curl https://api.openai.com/v1/chat/completions \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $OPENAI_API_KEY" \
+          -d '{
+              "model": "gpt-4.1",
+              "messages": [
+              {"role": "system", "content": "You are a senior Java engineer agent."},
+              {"role": "user", "content": "Read SpotBugs and PMD reports and fix violations. Generate missing JUnit tests."}
+                        ]
+              }' > agent-output.json
 
           jq -r '.choices[0].message.content' agent-output.json > agent.patch
           git apply agent.patch || echo "No patch applied"
