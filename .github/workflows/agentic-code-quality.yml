@@ -35,7 +35,7 @@ jobs:
 
       - name: Run LLM agent to fix code and add tests
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
           gh api /ai/models/gpt-4.1 \
             -X POST \
