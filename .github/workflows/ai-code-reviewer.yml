@@ -1,12 +1,17 @@
 name: 🤖 Agentic AI Code Reviewer
-
+# chaning this to push
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]  # Trigger on new PRs and updates
+ # pull_request:
+  #  types: [opened, synchronize, reopened]  # Trigger on new PRs and updates
+  #  branches:
+   #   - main
+   #   - develop
+
+  push:
     branches:
       - main
       - develop
-
+      
 # Permissions the agent needs to read code and write comments
 permissions:
   contents: read
