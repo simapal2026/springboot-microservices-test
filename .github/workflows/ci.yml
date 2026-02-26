@@ -11,10 +11,10 @@ on:
     branches:
       - main
       - develop
-  pull_request:
-    branches:
-      - main
-      - develop
+ # pull_request:
+  #  branches:
+   #   - main
+    #  - develop
 
 # ─────────────────────────────────────────────
 # JOBS: Units of work that run in parallel
